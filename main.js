@@ -27,6 +27,7 @@ service.middleware.push(require('./NginxLogParser'));
 var io = require('socket.io')(httpServer);
 httpServer.listen(1337);
 io.on('connection', socket => {
+	console.log('socket connection made');
 	// allow socket to receive updates
 	service.on('access', data => {
 		if (_.isString(data)) {
