@@ -5,7 +5,7 @@ const EventEmitter = require('events');
 var temp = require('./config');
 const accessPath = temp.accessPath;
 const errorPath = temp.errorPath;
-const refererFilter = temp.refererFilter;
+const refererFilters = temp.refererFilters;
 
 class NginxLogEmitter extends EventEmitter {}
 const emitter = new NginxLogEmitter();
@@ -19,7 +19,7 @@ access.on('line', (data) => {
 			data = m.onAccess(data);
 		}
 	});
-	if (!data.http_referer || data.http_referer !== refererFilter) {
+	if (!data.http_referer || refererFilters.indexOf(data.http_referer) === -1) {
 		emitter.emit('access', data);
 	}
 	
