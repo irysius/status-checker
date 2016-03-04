@@ -9,6 +9,7 @@ class NginxLogRow extends React.Component {
 				return <pre className="message">{message}</pre>;
 			} else {
 				return (<pre className="message">
+					{message.value} <br />
 					{message.filename}:{message.line_number}: <br />
 					{message.data.client} {message.data.request} <br />
 					{message.data.host}
