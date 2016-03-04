@@ -2,10 +2,10 @@
 const _ = require('lodash');
 const Tail = require('always-tail');
 const EventEmitter = require('events');
-const accessPath = '/var/log/nginx/access.log';
-const errorPath = '/var/log/nginx/error.log';
-// const accessPath = './access.txt';
-// const errorPath = './error.txt';
+var temp = require('./config');
+const accessPath = temp.accessPath;
+const errorPath = temp.errorPath;
+const refererFilter = temp.refererFilter;
 
 class NginxLogEmitter extends EventEmitter {}
 const emitter = new NginxLogEmitter();
@@ -19,7 +19,7 @@ access.on('line', (data) => {
 			data = m.onAccess(data);
 		}
 	});
-	if (!data.http_referer || data.http_referer !== 'http://localhost') {
+	if (!data.http_referer || data.http_referer !== refererFilter) {
 		emitter.emit('access', data);
 	}
 	
