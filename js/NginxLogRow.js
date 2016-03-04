@@ -31,6 +31,9 @@ var NginxLogRow = (function (_React$Component) {
 					return React.createElement(
 						"pre",
 						{ className: "message" },
+						message.value,
+						" ",
+						React.createElement("br", null),
 						message.filename,
 						":",
 						message.line_number,
