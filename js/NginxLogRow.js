@@ -20,6 +20,32 @@ var NginxLogRow = (function (_React$Component) {
 	_createClass(NginxLogRow, [{
 		key: "render",
 		value: function render() {
+			var message = (function (message) {
+				if (_.isString(message)) {
+					return React.createElement(
+						"pre",
+						{ className: "message" },
+						message
+					);
+				} else {
+					return React.createElement(
+						"pre",
+						{ className: "message" },
+						message.filename,
+						":",
+						message.line_number,
+						": ",
+						React.createElement("br", null),
+						message.data.client,
+						" ",
+						message.data.request,
+						" ",
+						React.createElement("br", null),
+						message.data.host
+					);
+				}
+			})(this.props.message);
+
 			return React.createElement(
 				"div",
 				{ className: 'row nginx-' + this.props.level },
@@ -31,11 +57,7 @@ var NginxLogRow = (function (_React$Component) {
 						{ className: "time" },
 						this.props.time
 					),
-					React.createElement(
-						"pre",
-						{ className: "message" },
-						this.props.message
-					)
+					message
 				)
 			);
 		}
@@ -47,5 +69,10 @@ var NginxLogRow = (function (_React$Component) {
 NginxLogRow.propTypes = {
 	time: React.PropTypes.string,
 	level: React.PropTypes.string,
-	message: React.PropTypes.string
+	message: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.shape({
+		filename: React.PropTypes.string,
+		line_number: React.PropTypes.number,
+		value: React.PropTypes.any,
+		data: React.PropTypes.object
+	})])
 };
