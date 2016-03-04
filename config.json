@@ -1,6 +1,9 @@
 {
 	"accessPath": "/var/log/nginx/access.log",
 	"errorPath": "/var/log/nginx/error.log",
+	"hostFilters": [
+		"localhost"	
+	],
 	"refererFilters": [
 		"-",
 		"http://localhost/inspector/"

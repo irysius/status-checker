@@ -6,6 +6,7 @@ var temp = require('./config');
 const accessPath = temp.accessPath;
 const errorPath = temp.errorPath;
 const refererFilters = temp.refererFilters;
+const hostFilters = temp.hostFilters;
 
 class NginxLogEmitter extends EventEmitter {}
 const emitter = new NginxLogEmitter();
@@ -38,8 +39,12 @@ log.on('line', (data) => {
 	
 	if (_.isString(data.message)) {
 		emitter.emit('log', data);
-	} else if (data.message && data.message.data && data.message.data.referrer) {
-		if (refererFilters.indexOf(data.message.data.referrer) === -1) {
+	} else if (data.message && data.message.data) {
+		let _data = data.message.data;
+		
+		if ((!_data.host || (_data.host && hostFilters.indexOf(_data.host) === -1)) && 
+			(!_data.referrer || (_data.referrer && refererFilters.indexOf(_data.referrer) === -1))) 
+		{
 			emitter.emit('log', data);
 		}
 	} else {
