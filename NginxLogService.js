@@ -19,7 +19,10 @@ access.on('line', (data) => {
 			data = m.onAccess(data);
 		}
 	});
-	emitter.emit('access', data);
+	if (!data.http_referer || data.http_referer !== 'http://localhost') {
+		emitter.emit('access', data);
+	}
+	
 });
 access.on('error', (data) => {
 	console.error('error:', data);

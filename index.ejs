@@ -31,10 +31,10 @@
 			var accessQueue = [];
 			var logQueue = [];
 			
-			function push(item, queue) {
-				queue.push(item);
+			function insert(item, queue) {
+				queue.unshift(item);
 				if (queue.length > 50) {
-					queue.shift();
+					queue.pop();
 				}
 			}
 			
@@ -51,15 +51,13 @@
 					document.getElementById('log'));
 			}
 			
-			var socket = io.connect('/');
+			var socket = io.connect('', { path: '/inspector/socket.io' });
 			socket.on('nginx.access', function (data) {
-				console.log(data);
-				push(data, accessQueue);
+				insert(data, accessQueue);
 				renderAccess(accessQueue);
 			});
 			socket.on('nginx.log', function (data) {
-				console.log(data);
-				push(data, logQueue);
+				insert(data, logQueue);
 				renderLog(logQueue);
 			});
 		</script>
