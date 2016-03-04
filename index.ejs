@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Nginx Panel</title>
+		<link rel="stylesheet" type="text/css" href="/bower_components/bootstrap/dist/css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href="/css/site.css">
+		<script src="/bower_components/react/react.js"></script>
+		<script src="/bower_components/react/react-dom.js"></script>
+		<script src="/bower_components/lodash/dist/lodash.min.js"></script>
+		<script src="/bower_components/moment/min/moment.min.js"></script>
+		<script src="/socket.io/socket.io.js"></script>
+		<script src="/js/NginxStringRow.js"></script>
+		<script src="/js/NginxAccessRow.js"></script>
+		<script src="/js/NginxLogRow.js"></script>
+		<script src="/js/NginxAccessCollection.js"></script>
+		<script src="/js/NginxLogCollection.js"></script>
+	</head>
+	<body>
+		<div class="container">
+			<h1>Nginx Panel</h1>
+			<div class="row">
+				<div class="col-sm-6" id="access">
+				</div>
+				<div class="col-sm-6" id="log">
+				</div>
+			</div>
+		</div>
+		<script>
+			var maxQueueSize = 50;
+			var accessQueue = [];
+			var logQueue = [];
+			
+			function push(item, queue) {
+				queue.push(item);
+				if (queue.length > 50) {
+					queue.shift();
+				}
+			}
+			
+			var AccessFactory = React.createFactory(NginxAccessCollection);
+			function renderAccess(queue) {
+				ReactDOM.render(
+					new AccessFactory({ values: queue }),
+					document.getElementById('access'));
+			}
+			var LogFactory = React.createFactory(NginxLogCollection);
+			function renderLog(queue) {
+				ReactDOM.render(
+					new LogFactory({ values: queue }),
+					document.getElementById('log'));
+			}
+			
+			var socket = io.connect('/');
+			socket.on('nginx.access', function (data) {
+				console.log(data);
+				push(data, accessQueue);
+				renderAccess(accessQueue);
+			});
+			socket.on('nginx.log', function (data) {
+				console.log(data);
+				push(data, logQueue);
+				renderLog(logQueue);
+			});
+		</script>
+	</body>
+</html>

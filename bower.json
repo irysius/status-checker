@@ -1,0 +1,22 @@
+{
+  "name": "status-checker",
+  "version": "0.0.0",
+  "authors": [
+    "irysius <lestersy@hotmail.com>"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "~3.3.6",
+    "lodash": "~4.6.1",
+    "moment": "~2.11.2",
+    "react": "~0.14.7"
+  }
+}
