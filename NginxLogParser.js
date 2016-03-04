@@ -1,5 +1,5 @@
 const moment = require('moment');
-function onAccess(line) {
+function parseAccess(line) {
 	// Nginx default access log format.
 	// assumes line has the following characteristics (that we care about):
 	// ${ip} [${time}] "${request}" ${status} ${bytes_sent} "${http_referer}" "${http_user_agent}"
@@ -51,8 +51,8 @@ function onAccess(line) {
 	}
 }
 
-function onLog(line) {
-	// Nginx default error log format.
+function parseLog(line) {
+	// Nginx default log format.
 	// assumes line has the following characteristics (that we care about):
 	// ${time} [${level}] _: *_ ${message}
 	// optional additional lines that do not match
@@ -89,10 +89,17 @@ function onLog(line) {
 			let e = line.indexOf(' ', d + 1);
 			let message = line.substring(e + 1);
 			
+			if (message.indexOf('[lua]') === 0) {
+				let lua_message = parseLua(message);
+				if (lua_message !== null) {
+					message = lua_message;
+				}
+			}
+			
 			return {
 				time: time,
 				level: level,
-				message: message	
+				message: message
 			};
 		} else {
 			// Indicates additional lines for the previous error
@@ -104,7 +111,45 @@ function onLog(line) {
 	}
 }
 
+function parseLua(line) {
+	// lua default log format.
+	// assumes line has the following characteristics (that we care about):
+	// [lua] ${filename}:${line_number}: ${data}, ...additional comma separated information
+	
+	try {
+		let a = line.indexOf(' ') + 1;
+		let b = line.indexOf(':', a + 1);
+		let filename = line.substring(a, b);
+		
+		let c = line.indexOf(':', b + 1);
+		let line_number = parseInt(line.substring(b + 1, c));
+		
+		if (isNaN(line_number)) { line_number = -1; }
+		
+		let rest = line.substring(c + 1).split(',');
+		let value = rest[0].indexOf(': ') === -1 ?
+			rest[0] : null;
+		var data = {};
+		rest.map(r => r.trim())
+			.filter(r => r.indexOf(': ') !== -1)
+			.map(r => r.split(': '))
+			.forEach(r => {
+				data[r[0].trim()] = r[1].trim();
+			});
+		
+		return {
+			filename: filename,
+			line_number: line_number,
+			value: value,
+			data: data	
+		};
+	} catch (e) {
+		console.error(e);
+		return null;
+	}
+}
+
 module.exports = {
-	onAccess: onAccess,
-	onLog: onLog
+	onAccess: parseAccess,
+	onLog: parseLog
 };

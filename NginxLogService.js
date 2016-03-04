@@ -35,7 +35,16 @@ log.on('line', (data) => {
 			data = m.onLog(data);	
 		}
 	});
-	emitter.emit('log', data);
+	
+	if (_.isString(data.message)) {
+		emitter.emit('log', data);
+	} else if (data.message && data.message.data && data.message.data.referrer) {
+		if (refererFilters.indexOf(data.message.data.referrer) === -1) {
+			emitter.emit('log', data);
+		}
+	} else {
+		emitter.emit('log', data);
+	}
 });
 log.on('error', (data) => {
 	console.error('error:', data);
