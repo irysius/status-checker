@@ -86,8 +86,8 @@ function onLog(line) {
 			let d = line.indexOf(' ', c);
 			let y = line.substring(c, d);
 			
-			let e = d + 1;
-			let message = line.substring(e);
+			let e = line.indexOf(' ', d + 1);
+			let message = line.substring(e + 1);
 			
 			return {
 				time: time,
