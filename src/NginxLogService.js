@@ -1,7 +1,6 @@
 /* global process */
 const _ = require('lodash');
 const Tail = require('always-tail');
-const EventEmitter = require('events');
 const util = require('util');
 var temp = require('./config');
 const accessPath = temp.accessPath;
@@ -9,11 +8,36 @@ const errorPath = temp.errorPath;
 const refererFilters = temp.refererFilters;
 const hostFilters = temp.hostFilters;
 
-function NginxLogEmitter() {
-	EventEmitter.call(this);
+var callbacks = {};
+
+function on(eventName, callback) {
+	if (typeof callbacks[eventName] === 'undefined') {
+		callbacks[eventName] = [];
+	}
+	callbacks[eventName].push(callback);
 }
-util.inherits(NginxLogEmitter, EventEmitter);
-const emitter = new NginxLogEmitter();
+function off(eventName, callback) {
+	if (typeof callbacks[eventName] === 'undefined') {
+		callbacks[eventName] = [];
+	}
+	var index = callbacks[eventName].indexOf(callback);
+	if (index !== -1) {
+		callbacks.splice(index, 1);
+	}
+}
+
+function emit(eventName, payload) {
+	if (callbacks[eventName]) {
+		callbacks[eventName].forEach(function (callback) {
+			callback(payload);
+		});
+	}
+}
+
+function clear() {
+	callbacks = {};
+}
+
 
 var middleware = [];
 
@@ -25,7 +49,7 @@ access.on('line', (data) => {
 		}
 	});
 	if (!data.http_referer || refererFilters.indexOf(data.http_referer) === -1) {
-		emitter.emit('access', data);
+		emit('access', data);
 	}
 	
 });
@@ -42,17 +66,17 @@ log.on('line', (data) => {
 	});
 	
 	if (_.isString(data.message)) {
-		emitter.emit('log', data);
+		emit('log', data);
 	} else if (data.message && data.message.data) {
 		let _data = data.message.data;
 		
 		if ((!_data.host || (_data.host && hostFilters.indexOf(_data.host) === -1)) && 
 			(!_data.referrer || (_data.referrer && refererFilters.indexOf(_data.referrer) === -1))) 
 		{
-			emitter.emit('log', data);
+			emit('log', data);
 		}
 	} else {
-		emitter.emit('log', data);
+		emit('log', data);
 	}
 });
 log.on('error', (data) => {
@@ -74,9 +98,9 @@ var proxy = {
 		access.unwatch();
 		log.unwatch();	
 	},
-	on: emitter.on.bind(emitter),
-	off: emitter.removeListener.bind(emitter),
-	clear: emitter.removeAllListeners.bind(emitter)
+	on: on,
+	off: off,
+	clear: clear
 };
 Object.defineProperty(proxy, 'middleware', {
 	get: () => {
