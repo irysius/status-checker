@@ -2,13 +2,17 @@
 const _ = require('lodash');
 const Tail = require('always-tail');
 const EventEmitter = require('events');
+const util = require('util');
 var temp = require('./config');
 const accessPath = temp.accessPath;
 const errorPath = temp.errorPath;
 const refererFilters = temp.refererFilters;
 const hostFilters = temp.hostFilters;
 
-class NginxLogEmitter extends EventEmitter {}
+function NginxLogEmitter() {
+	EventEmitter.call(this);
+}
+util.inherits(NginxLogEmitter, EventEmitter);
 const emitter = new NginxLogEmitter();
 
 var middleware = [];

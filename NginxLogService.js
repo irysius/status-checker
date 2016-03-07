@@ -1,33 +1,20 @@
 'use strict';
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
 /* global process */
 var _ = require('lodash');
 var Tail = require('always-tail');
 var EventEmitter = require('events');
+var util = require('util');
 var temp = require('./config');
 var accessPath = temp.accessPath;
 var errorPath = temp.errorPath;
 var refererFilters = temp.refererFilters;
 var hostFilters = temp.hostFilters;
 
-var NginxLogEmitter = function (_EventEmitter) {
-	_inherits(NginxLogEmitter, _EventEmitter);
-
-	function NginxLogEmitter() {
-		_classCallCheck(this, NginxLogEmitter);
-
-		return _possibleConstructorReturn(this, Object.getPrototypeOf(NginxLogEmitter).apply(this, arguments));
-	}
-
-	return NginxLogEmitter;
-}(EventEmitter);
-
+function NginxLogEmitter() {
+	EventEmitter.call(this);
+}
+util.inherits(NginxLogEmitter, EventEmitter);
 var emitter = new NginxLogEmitter();
 
 var middleware = [];
